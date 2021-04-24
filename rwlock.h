@@ -1,13 +1,14 @@
 #ifndef __RWLOCK_H__
 #define __RWLOCK_H__
 #include<semaphore.h>
+#include <pthread.h>
 
 class RWLock{
 private:
     // Synchronization variables
-    Lock lock;
-    CV readGo;
-    CV writeGo;
+    pthread_mutex_t lock;
+    pthread_cond_t readGo;
+    pthread_cond_t writeGo;
 
     int activeReaders;
     int activeWriters;
