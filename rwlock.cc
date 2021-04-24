@@ -72,7 +72,7 @@ void RWLock::doneWrite() {
         pthread_cond_signal(&readGo);
     } 
     else {
-        pthread_cond_broadcast(&writeGo);
+        pthread_cond_broadcast(&readGo);
     }
     pthread_mutex_unlock(&lock);
 }
