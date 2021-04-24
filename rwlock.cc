@@ -69,7 +69,7 @@ void RWLock::doneWrite() {
     activeWriters--;
     assert(activeWriters == 0);
     if (waitingWriters > 0) {
-        pthread_cond_signal(&writeGo);
+        pthread_cond_signal(&readGo);
     } 
     else {
         pthread_cond_broadcast(&writeGo);
