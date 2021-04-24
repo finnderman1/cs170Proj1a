@@ -3,6 +3,7 @@
 #include <iostream> 
 
 #include "rwlock.h"
+#include <cassert>
 
 //Your solution to implement each of the following methods
 //
@@ -10,7 +11,7 @@ RWLock::RWLock() {
     pthread_mutex_init( &(lock), NULL);
     pthread_cond_init(&(readGo), NULL);
     pthread_cond_init(&(writeGo), NULL);
-    
+
     activeReaders = 0;
     activeWriters = 0;
     waitingReaders = 0;
