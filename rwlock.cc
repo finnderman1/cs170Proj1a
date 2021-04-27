@@ -21,7 +21,7 @@ RWLock::~RWLock() { }
 void RWLock::startRead() {
     pthread_mutex_lock(&lock);
     waitingReaders++;
-    while (readShouldWait()) {
+    while (activeWriters > 0 || waitingWriters > 0) {
         pthread_cond_wait(&readGo, &lock);
     }
     waitingReaders--;
@@ -29,8 +29,6 @@ void RWLock::startRead() {
     pthread_mutex_unlock(&lock);
 }
 
-// Done reading. If no other active
-// reads, a write may proceed.
 void RWLock::doneRead() {
     pthread_mutex_lock(&lock);
     activeReaders--;
@@ -41,20 +39,10 @@ void RWLock::doneRead() {
     pthread_mutex_unlock(&lock);
 }
 
-// Read waits if any active or waiting
-// write ("writers preferred").
-bool RWLock::readShouldWait() {
-    return (activeWriters > 0 
-             || waitingWriters > 0);
-}
-
-
-// Wait until no active read or
-// write then proceed.
 void RWLock::startWrite() {
     pthread_mutex_lock(&lock);
     waitingWriters++;
-    while (writeShouldWait()) {
+    while (activeWriters > 0 || activeReaders > 0) {
         pthread_cond_wait(&writeGo, &lock);
     }
     waitingWriters--;
@@ -62,8 +50,6 @@ void RWLock::startWrite() {
     pthread_mutex_unlock(&lock);
 }
 
-// Done writing. A waiting write or
-// read may proceed.
 void RWLock::doneWrite() {
     pthread_mutex_lock(&lock);
     activeWriters--;
@@ -76,13 +62,3 @@ void RWLock::doneWrite() {
     }
     pthread_mutex_unlock(&lock);
 }
-
-// Write waits for active read or write.
-bool RWLock::writeShouldWait() {
-    return (activeWriters > 0 
-             || activeReaders > 0);
-}
-// void RWLock::startRead() { }
-// void RWLock::doneRead() { }
-// void RWLock::startWrite() { }
-// void RWLock::doneWrite() { }
